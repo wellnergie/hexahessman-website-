@@ -36,6 +36,10 @@ Then open http://localhost:8765.
 - Google reviews: the `GOOGLE_REVIEWS` list in `build.py` (name, stars, when, text), plus `GOOGLE_RATING` and `GOOGLE_COUNT`. Paste more reviews there and rebuild. Both the home slider and the Testimonials page read from it.
 - Product ratings on shop cards: add `rating=5, reviews=4` to a product in `PRODUCTS` to show stars; add `compare=259` to show a strike-through price and a Sale badge.
 
+## Deploying
+
+`vercel.json` tells Vercel to serve the `site/` folder with no build step. Pushing to `main` redeploys.
+
 ## Notes
 
 - "Add to cart" links to the matching product page on the existing Wix store, so checkout keeps working until the new site gets its own cart.
