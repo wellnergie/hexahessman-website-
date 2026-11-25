@@ -1,0 +1,8 @@
+# macOS / Python
+.DS_Store
+__pycache__/
+*.pyc
+
+# Client working documents (not needed to build the site; repo is public)
+*.pdf
+*.docx
