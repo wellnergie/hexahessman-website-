@@ -66,10 +66,57 @@
   }
 
   /* ---------- Reveal on scroll ---------- */
+  /* Motion setup: mark what animates and in which order */
+  const ANIM = ["anim-child", "anim-title", "anim-side", "from-left", "from-right"];
+  function prep(el, d) {
+    if (getComputedStyle(el).display === "inline") el.style.display = "inline-block";
+    el.classList.add("anim-child");
+    if (/^H[1-4]$/.test(el.tagName)) el.classList.add("anim-title");
+    el.style.setProperty("--d", d);
+  }
+  const stagger = (els, start) => Array.from(els).forEach((el, k) => prep(el, (start || 0) + k));
+  const all = (root, sel) => root.querySelectorAll(sel);
+
+  // Centered statements and section headings: words rise in one after another
+  all(document, ".statement.reveal, .statement .reveal, .info-blocks.reveal, .vm.reveal").forEach(g => { g.classList.add("reveal-group"); stagger(g.children); });
+  all(document, ".section-head.reveal").forEach(g => { g.classList.add("reveal-group"); stagger(all(g, ":scope > div > *, :scope > a")); });
+  // Photo + words: photo from one side, words from the other
+  all(document, ".split.reveal").forEach(g => {
+    g.classList.add("reveal-group");
+    const rev = g.classList.contains("reverse");
+    const media = g.querySelector(".split-media"), body = g.querySelector(".split-body");
+    if (media) media.classList.add("anim-side", rev ? "from-right" : "from-left");
+    if (body) { body.classList.add("anim-side", rev ? "from-left" : "from-right"); stagger(body.children, 2); }
+  });
+  // Dark callout: box fades up, then its words and list items follow
+  all(document, ".wave-callout.reveal").forEach(g => stagger(all(g, ":scope > div > *, :scope > ul > li"), 2));
+  // Card grids: queue in from the left, column by column
+  all(document, ".grid, .materials, .values, .t-grid").forEach(grid => {
+    const cols = Math.max(1, getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+    Array.from(grid.children).filter(c => c.classList.contains("reveal")).forEach((c, k) => { c.classList.add("anim-queue"); c.style.setProperty("--d", k % cols); });
+  });
+  // Page titles on inner pages animate as soon as the page opens
+  all(document, ".page-head .wrap").forEach(w => { stagger(w.children); requestAnimationFrame(() => requestAnimationFrame(() => w.classList.add("is-in"))); setTimeout(() => cleanup(w), 3200); });
+
+  // Once an element has finished animating, drop the helpers so hover effects behave normally
+  function cleanup(t) {
+    [t].concat(Array.from(all(t, ".anim-child, .anim-side"))).forEach(e => { e.classList.remove.apply(e.classList, ANIM.concat("anim-queue")); e.style.removeProperty("--d"); });
+  }
+
   const io = new IntersectionObserver(entries => {
-    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); } });
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add("is-in"); io.unobserve(en.target);
+      setTimeout(() => cleanup(en.target), 3400);
+    });
   }, { threshold: 0.12 });
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  /* Preloader: release the hero once it has played */
+  if (document.body.classList.contains("has-preloader")) {
+    setTimeout(() => { const p = document.querySelector(".preloader"); p && p.remove(); }, 3200);
+    setTimeout(() => document.body.classList.add("pl-done"), 5200);
+  }
 
   /* ---------- Shop filters ---------- */
   const chips = document.querySelectorAll(".chips button");

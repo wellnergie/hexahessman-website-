@@ -264,6 +264,8 @@ def google_reviews(rel=""):
   <div class="marquee" data-marquee><div class="marquee-track">{cards}</div></div>
 </section>"""
 
+PRELOADER = '''<div class="preloader" aria-hidden="true"><div class="pl-lockup"><img class="pl-mark" src="assets/logo/mark-dark.png" alt=""><span class="pl-word"><i style="--k:0">W</i><i style="--k:1">E</i><i style="--k:2">L</i><i style="--k:3">L</i><i style="--k:4">N</i><i style="--k:5">E</i><i style="--k:6">R</i><i style="--k:7">G</i><i style="--k:8">I</i><i style="--k:9">E</i></span></div></div>'''
+
 def social_icons(cls="", rel=""):
     items = ""
     for n, u, ic in SOCIALS:
@@ -439,7 +441,7 @@ def page_home():
     featured = [BY_SLUG[s] for s in ("wetube", "weband-luxury", "wespec", "weband-executive", "weband-magnet", "weband-stylish-ii", "weband-classic", "hexabee-socks")]
     cards = "\n".join(product_card(p) for p in featured)
 
-    return head("Home", "") + '<body class="has-hero">' + header("", "Home") + f"""
+    return head("Home", "") + '<body class="has-hero has-preloader">' + PRELOADER + header("", "Home") + f"""
 <section class="hero" aria-roledescription="carousel">
   {slides_html}
   <div class="hero-nav wrap">
